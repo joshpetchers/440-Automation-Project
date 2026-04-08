@@ -1,1 +1,3 @@
 # 440-Automation-Project
+AI-Powered Financial Research Dashboard
+A web-based application that combines real-time financial data with an AI conversational assistant to streamline the stock and company research process. Users can search any ticker or company and receive an instant, structured analysis — including recent news, key financials, sentiment, risks, and opportunities — all synthesized by Claude in plain English. From there, users can ask follow-up questions through a built-in chat interface, where the AI maintains context throughout the session to support deeper, more informed research conversations.
