@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIGNAL//AI — Financial Signals Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ── APP HEADER ─────────────────────────────────────────── -->
+<div class="app-header">
+  <div class="brand">
+    <div class="brand-icon">S</div>
+    <span class="brand-name">SIGNAL<span class="brand-slash">//</span>AI</span>
+  </div>
+  <div class="market-strip" id="marketStrip"></div>
+  <div class="header-actions">
+    <button class="btn-scan" id="scanBtn" onclick="scanNews()">⚡ SCAN NEWS</button>
+    <button class="btn-key" onclick="showApiKeyModal()" title="Configure API Key">⚙</button>
+  </div>
+</div>
+
+<!-- ── STATS BAR ─────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-label">Signals</span>
+    <span class="stat-val" id="sSig">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Buy</span>
+    <span class="stat-val buy" id="sBuy">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Sell</span>
+    <span class="stat-val sell" id="sSell">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Hold</span>
+    <span class="stat-val hold" id="sHold">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Avg Conf</span>
+    <span class="stat-val" id="sConf">—</span>
+  </div>
+  <div class="stat">
+    <div class="api-dot" id="apiDot"></div>
+    <span class="api-label" id="apiLabel">No Key</span>
+  </div>
+</div>
+
+<!-- ── FILTER BAR ─────────────────────────────────────────── -->
+<div class="filter-bar" id="filterBar">
+  <button class="chip active" data-filter="all"  onclick="setFilter(this,'all')">ALL</button>
+  <button class="chip chip-buy"  data-filter="BUY"  onclick="setFilter(this,'BUY')">BUY</button>
+  <button class="chip chip-sell" data-filter="SELL" onclick="setFilter(this,'SELL')">SELL</button>
+  <button class="chip chip-hold" data-filter="HOLD" onclick="setFilter(this,'HOLD')">HOLD</button>
+  <!-- Sector chips injected by app.js -->
+</div>
+
+<!-- ── MAIN PANEL ─────────────────────────────────────────── -->
+<div class="app-body">
+  <div class="main-panel">
+
+    <!-- LEFT: SIGNAL FEED -->
+    <div class="feed-col">
+      <div class="col-header">
+        <span class="col-title">Signals Feed</span>
+        <span class="col-sub" id="feedCount">0 signals</span>
+      </div>
+      <div class="feed-list" id="feedList">
+        <div class="feed-empty" id="feedEmpty">
+          <div class="feed-empty-icon">◎</div>
+          <div class="feed-empty-text">No signals yet</div>
+          <div class="feed-empty-sub">Click ⚡ SCAN NEWS to fetch and analyze recent financial headlines</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: DETAIL PANEL -->
+    <div class="detail-col" id="detailCol">
+      <div class="detail-empty" id="detailEmpty">
+        <div class="empty-icon">◈</div>
+        <div class="empty-title">Select a signal</div>
+        <div class="empty-sub">Click any card in the feed to view the full market impact analysis and trade recommendation.</div>
+      </div>
+      <div id="detailContent"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SCAN OVERLAY ───────────────────────────────────────── -->
+<div class="scan-overlay" id="scanOverlay" style="display:none">
+  <div class="scan-spinner"></div>
+  <div class="scan-ticker-label" id="overlayTicker"></div>
+  <div class="scan-msg" id="overlayMsg">Scanning...</div>
+</div>
+
+<!-- ── ERROR / SUCCESS TOAST ─────────────────────────────── -->
+<div class="toast" id="toast">
+  <span id="toastMsg"></span>
+  <span class="toast-close" onclick="dismissToast()">✕</span>
+</div>
+
+<!-- ── API KEY MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="apiModal" style="display:none" onclick="closeApiModalOnOverlay(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>Configure Anthropic API Key</span>
+      <button class="modal-close" onclick="closeApiModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">
+        Enter your Anthropic API key to enable live signal scanning. Headlines are fetched
+        from financial RSS feeds and analyzed by Claude to generate structured trade signals.
+      </p>
+      <div class="modal-field">
+        <label>API Key</label>
+        <input
+          type="password"
+          id="apiKeyInput"
+          placeholder="sk-ant-..."
+          autocomplete="off"
+          onkeydown="if(event.key==='Enter') saveApiKey()"
+        />
+      </div>
+      <p class="modal-note">
+        Your key is stored only in your browser's <code>localStorage</code> and sent via a
+        secure <code>x-api-key</code> header to the <code>/api/scan</code> endpoint. It is
+        never logged or stored server-side. For production, set
+        <code>ANTHROPIC_API_KEY</code> as a Vercel environment variable instead.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-save" onclick="saveApiKey()">Save Key</button>
+      <button class="btn-modal-clear" onclick="clearApiKey()">Clear</button>
+      <button class="btn-modal-cancel" onclick="closeApiModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

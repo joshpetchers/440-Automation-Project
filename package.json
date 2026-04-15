@@ -1,0 +1,16 @@
+{
+  "name": "signal-ai-dashboard",
+  "version": "1.0.0",
+  "description": "SIGNAL//AI — Bloomberg-style financial signals dashboard",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.3.6"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}
