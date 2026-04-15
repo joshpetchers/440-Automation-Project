@@ -170,4 +170,43 @@ async function fetchRelevantArticles(ticker, feedUrls, maxArticles = 8) {
   return relevant;
 }
 
-module.exports = { fetchRelevantArticles };
+/**
+ * Fetch all articles from configured feeds without ticker filtering.
+ * Used by the SIGNAL//AI dashboard "Scan News" flow.
+ *
+ * @param {string[]} feedUrls
+ * @param {number}   maxArticles
+ * @returns {Promise<Array>}
+ */
+async function fetchFinancialHeadlines(feedUrls, maxArticles = 20) {
+  if (!feedUrls || feedUrls.length === 0) return [];
+
+  const results = await Promise.allSettled(
+    feedUrls.map(url =>
+      fetchUrl(url)
+        .then(xml => parseFeed(xml, url))
+        .catch(() => [])
+    )
+  );
+
+  const allArticles = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+
+  // Dedupe by title, sort by recency, return top N
+  const seen = new Set();
+  return allArticles
+    .filter(a => {
+      if (!a.title || a.title.trim().length < 10) return false;
+      const key = a.title.toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => {
+      const da = a.pubDate ? new Date(a.pubDate) : new Date(0);
+      const db = b.pubDate ? new Date(b.pubDate) : new Date(0);
+      return db - da;
+    })
+    .slice(0, maxArticles);
+}
+
+module.exports = { fetchRelevantArticles, fetchFinancialHeadlines };
